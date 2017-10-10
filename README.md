@@ -7,7 +7,7 @@
 #### HTTP Methods
 The HTTP verb associated with reading data is `GET`. A `GET` request is safe, idempotent, and cacheable.
 
-Safe means that a `GET` request does not affect the state of the server. If we draw an analogy to reading a book, this makes a lot of sense -- the book doesn't change just because you read a page. A `GET` is also idempotent, which means that it can be performed many times in a row and the client will always get the same result -- you can read the same page in a book as many times as you like. Because nothing should change on either the server or the resource when doing a `GET`, the client can store (cache) the result. 
+Safe means that a `GET` request does not affect the state of the server. If we draw an analogy to reading a book, this makes a lot of sense -- the book doesn't change just because you read a page. A `GET` is also idempotent, which means that it can be performed many times in a row and the client will always get the same result -- you can read the same page in a book as many times as you like. However, if another client updates the resource you're requesting, you may get a different result between requests. Because nothing should change on either the server or the resource as the result of performing a `GET`, the client can store (cache) the result. 
 
 The result of a `GET` is some representation of a resource, usually JSON. You can read more about [`GET` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)
 
@@ -54,7 +54,7 @@ If there are many items in the collection, the API should split up the response 
 ##### Filtering
 When accessing a collection, a client might want to filter by properties on the resource. The RESTful way to do this is to use a query string made up of individual key-value parameters, which is appended to the URI for the resource collection. 
 
-To filter `products` by category, the URI might look like this: `/products?category=salsa`. Multiple query parameters are separated by an ampersand, so to filter products by both category and color, the URI is `/products?category=salsa&color=red`. Notice that like the URIs for items and collections, we value human readability for query parameters as well. We could've used the `categoryId` and `colorId`, but those are difficult to remember and require knowledge of the mapping between ids and strings.
+To filter `products` by a category id, the URI might look like this: `/products?categoryId=1`. Multiple query parameters are separated by an ampersand, so to filter products by both category and color, the URI is `/products?categoryId=1&colorId=2`. If we want to filter by multiple values for the same property, we just include the query parameter as many times as necessary (ex: `/products?colorId=1&colorId=2`).
 
 ##### Subset
 You may have a requirement that clients be allowed to specify a subset of a collection when no filtering meets their needs.
