@@ -43,7 +43,7 @@ Here's what a request to `GET /products/123` might return as the body:
       "upc": "089463115732"
     }
 ```
-Since this was a successful request, the response status code is `200`.
+Since this was a successful request, the response's status code is `200`.
 
 #### Collections
 If we want all the members of a collection, we use a URI like this: `/products`. As in the case for a single item, the URI is plural since we are interacting with a collection.
@@ -100,4 +100,4 @@ A `GET` to `/products` might return this paginated response:
     ]
 }
 ```
-In this response, we can see the `products` are embedded, along with enough information to move between pages. Because this was a successful request, the response status code is `200`.
+In this response, we can see that `products` contains the array of products. We could've returned just the array, but this approach will allow us to extend the response object in a backwards-compatible way. Because this was a successful request, the response's status code is `200`.
