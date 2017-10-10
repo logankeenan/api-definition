@@ -21,17 +21,12 @@ There are several status codes involved with reading information from an API:
 - [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist. 
 
 #### Single Item
-If we want to identify a product with an `id` of 123, the URI might look like this: `/products/123`. We prefix the URI with `products` so that it is clear which resource we're talking about, as an API will likely have many different resources. Also, we like to optimize URIs for human readability (machines don't care), so we use `product` rather than a numeric id or UUID. It's also important that the URI is plural, since we are identifying a single product in a collection of products.
+If we want to identify a product with an `id` of 123, the URI might look like this: `/products/123`. We prefix the URI with `products` so that it is clear which resource we're talking about, as an API will likely have many different resources. Also, we like to optimize URIs for human readability (machines don't care), so we use `products` rather than a numeric id or UUID. It's also important that the URI is plural, since we are identifying a single product in a collection of products.
 
 ##### Sample Response
 Here's what a request to `GET /products/123` might return as the body: 
 ```json
     {
-      "_links": {
-        "self": {
-          "href": "https://api.hy-vee.com/products/123"
-        }
-      },
       "category": 42,
       "id": 123,
       "name": "Hy-Vee Authentic Salsa (Medium)",
@@ -69,33 +64,8 @@ For example, clients may want to interact with a small collection of ids, using 
 A `GET` to `/products` might return this paginated response:
 ```json
 {
-  "_links": {
-    "self": {
-      "href": "https://api.hy-vee.com/products?page=3"
-    },
-    "first": {
-      "href": "https://api.hy-vee.com/products"
-    },
-    "prev": {
-      "href": "https://api.hy-vee.com/products?page=2"
-    },
-    "next": {
-      "href": "https://api.hy-vee.com/products?page=4"
-    },
-    "last": {
-      "href": "https://api.hy-vee.com/products?page=286"
-    }
-  },
-  "count": 2,
-  "total": 572,
-  "_embedded": {
     "products": [
       {
-        "_links": {
-          "self": {
-            "href": "https://api.hy-vee.com/products/123"
-          }
-        },
         "category": 42,
         "id": 123,
         "name": "Hy-Vee Authentic Salsa (Medium)",
@@ -112,11 +82,6 @@ A `GET` to `/products` might return this paginated response:
         "upc": "089463115732"
       },
       {
-        "_links": {
-          "self": {
-            "href": "https://api.hy-vee.com/products/456"
-          }
-        },
         "category": 89,
         "id": 456,
         "name": "Hy-Vee Mountain Lightning",
@@ -133,7 +98,6 @@ A `GET` to `/products` might return this paginated response:
         "upc": "126908453187"
       }
     ]
-  }
 }
 ```
 In this response, we can see the `products` are embedded, along with enough information to move between pages. Because this was a successful request, the response status code is `200`.
