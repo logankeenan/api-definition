@@ -119,7 +119,7 @@ A `GET` to `/products` might return this paginated response:
         },
         "category": 89,
         "id": 456,
-        "name": "Hy-Vee Moutain Lightning",
+        "name": "Hy-Vee Mountain Lightning",
         "size": {
           "volume": {
             "value": 12,
