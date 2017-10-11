@@ -42,6 +42,19 @@ Headers:
 Location: '/products/1234'
 ```
 
+#### Validations Errors (400 Status Code)
+When a 400 status code, bad request, response is received it should contain a body which contains a human readable description of what went know.  Validation errors typically come in two different types. Validation errors that related to particular fields in the resource that was posted and errors that relate to the entire resource.  Errors related to particular field might include an issue with the type, the length of a field, a non-existent id for a relationship, etc. Errors related to the entire resource might be specific to business rules or invalid statue due to a combination of properties.
+
+##### Sample 400 Response
+In this example a resource the client attempted to create a credit card resource but the credit card could not be verified (being ambiguous on purpose is important here) and the the nickname property was not provided
+
+```json
+  "errors": ["The credit card failed verification"],
+  "data": {
+    "nickname": ["Nickname is a required field"]
+  }
+```
+
 ### Read
 
 #### HTTP Methods
