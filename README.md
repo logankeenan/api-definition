@@ -111,6 +111,7 @@ You can read more about [`PUT` on MDN](https://developer.mozilla.org/en-US/docs/
 
 #### Status Codes
 There are several status codes involved with updating information:
+- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and  
 - [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully updated and the response has no body.
 - [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
 - [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated, but **may** be able to update the resource if they login.
@@ -148,6 +149,18 @@ Note that all the fields that would be present from a `GET /products/123` are th
 
 ##### Sample Response
 A succesful `PUT` will have the status code `204`, indicating that there is no response body. 
+
+##### Lengthy Updates
+
+Some resources may take additional processing that exceeds the typical timeout period for a request. Rather than having the client wait for the result, the API should return a `202` response code and a `Location` header that indicates where the status of the request can be monitored. 
+
+From an implementation perspective, we may have a `/queue` resource that allows clients to monitor long-running tasks, including updates. For example, a `PUT` to `/products/123` would return `202 Accepted` along with these headers:
+```json
+Location: /queue/789
+Expires: Wed, 21 Oct 2017 07:28:00 GMT
+```
+
+The headers indicate to the client that the task to update the resource can be monitored at `/queue/789` and that the task will expire at some date in the future, regardless of success or failure.
 
 #### Collection
 Entire collections should not be updated with a `PUT`. Instead, individual items should be updated. Should a client attempt to update a collection, the appropriate response code is a `405`. 
