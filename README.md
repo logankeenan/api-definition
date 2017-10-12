@@ -101,3 +101,53 @@ A `GET` to `/products` might return this paginated response:
 }
 ```
 In this response, we can see that `products` contains the array of products. We could've returned just the array, but this approach will allow us to extend the response object in a backwards-compatible way. Because this was a successful request, the response's status code is `200`.
+
+### Update
+
+#### HTTP Methods
+The HTTP verb associated with updating a resource is `PUT`. A `PUT` request is not safe, but implemented correctly, it is idempotent. If it's not possible for the update to be idempotent (perhaps the resource increments a counter or last-updated timestamp), then the appropriate method is `POST`.
+
+You can read more about [`PUT` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)
+
+#### Status Codes
+There are several status codes involved with updating information:
+- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully updated and the response has no body.
+- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
+- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated, but **may** be able to update the resource if they login.
+- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource exists, but the client is not authorized to update it. Depending on how sensitive the resource is, it might be appropriate to return a `404` instead.
+- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist.
+- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405) The resource does not support a PUT (perhaps it is a collection or a static item)
+- [409 (Conflict)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409):
+    - multiple clients attempting to update the same resource simultaneously
+    - conflicting resource id between the request URI and the payload. 
+
+#### Single Item
+If we want to update a product with an id `123`, the URI is simply `/products/123`. We may opt to include the resource id in the request payload, so it should also be checked against the id in the URI.
+
+##### Sample Request
+If we want to update the name of a product with id `123`, from "Hy-Vee Authentic Salsa (Medium)" to "Hy-Vee Salsa", we can use a payload like this: 
+```json
+  {
+    "category": 42,
+    "id": 123,
+    "name": "Hy-Vee Salsa",
+    "size": {
+      "volume": {
+        "value": 16,
+        "uom": "oz"
+      },
+      "quantity": {
+        "value": 1,
+        "uom": "eaches"
+      }
+    },
+    "upc": "089463115732"
+  }
+```
+Note that all the fields that would be present from a `GET /products/123` are there, but only a single field, `name`, changes. This approach allows clients to fetch a resource, make their change, and call the API to update, without having to do any additional transformation. When designing validation for `PUT` endpoints, keep this in mind.
+
+##### Sample Response
+A succesful `PUT` will have the status code `204`, indicating that there is no response body. 
+
+#### Collection
+Entire collections should not be updated with a `PUT`. Instead, individual items should be updated. Should a client attempt to update a collection, the appropriate response code is a `405`. 
