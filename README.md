@@ -154,9 +154,9 @@ A succesful `PUT` will have the status code `204`, indicating that there is no r
 
 Some resources may take additional processing that exceeds the typical timeout period for a request. Rather than having the client wait for the result, the API should return a `202` response code and a `Location` header that indicates where the status of the request can be monitored. 
 
-From an implementation perspective, we may have a `/queue` resource that allows clients to monitor long-running tasks, including updates. For example, a `PUT` to `/products/123` would return `202 Accepted` along with these headers:
+From an implementation perspective, we may have a `/tasks` resource that allows clients to monitor long-running tasks, including updates. For example, a `PUT` to `/products/123` would return `202 Accepted` along with these headers:
 ```json
-Location: /queue/789
+Location: /tasks/789
 Expires: Wed, 21 Oct 2017 07:28:00 GMT
 ```
 
