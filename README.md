@@ -31,7 +31,7 @@ We will be creating a product resource to represent skim milk.  Each product has
 {
   "name": "Skim Milk",
   "price": 1.59,
-  "productCategoryId": "445",
+  "productCategoryId": 445,
   "description": "The greatest milk in the world!"
 }
 ```
@@ -40,7 +40,7 @@ We will be creating a product resource to represent skim milk.  Each product has
 Http Status Code: 201
 Headers:
 ```
-Location: '/products/1234'
+Location: 'https://api.hy-vee.com/products/1234'
 ```
 
 #### Validations Errors (400 Status Code)
