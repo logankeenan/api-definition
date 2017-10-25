@@ -111,7 +111,7 @@ You can read more about [`PUT` on MDN](https://developer.mozilla.org/en-US/docs/
 
 #### Status Codes
 There are several status codes involved with updating information:
-- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and  
+- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and processing may take longer than a client cares to wait.  
 - [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully updated and the response has no body.
 - [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
 - [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated, but **may** be able to update the resource if they login.
@@ -148,7 +148,41 @@ If we want to update the name of a product with id `123`, from "Hy-Vee Authentic
 Note that all the fields that would be present from a `GET /products/123` are there, but only a single field, `name`, changes. This approach allows clients to fetch a resource, make their change, and call the API to update, without having to do any additional transformation. When designing validation for `PUT` endpoints, keep this in mind.
 
 ##### Sample Response
-A succesful `PUT` will have the status code `204`, indicating that there is no response body. 
+- status code `204`
+- no response body
+- headers:
+```
+Location: 'https://api.hy-vee.com/products/123'
+```
+
+##### Validation
+Most likely an API will do some validation against a request to enforce any technical restraints or business logic. If the request fails validation, a `400` status code will be returned, along with details about the errors.
+
+As in a create or `POST`, there will be validation against the payload as a whole (general errors) as well as individual fields (property errors). In the response, general errors should be placed under `errors`, while `propertyErrors` should be an object with keys corresponding to each field with an error (note that there's no need to indicate that a field passed validation, only include errors).
+
+For example, say we have a `/sales` endpoint that represents a sale. More than one sale cannot happen at a time and they must be tied to an individual location. If we were to update a sale to overlap with another and we omitted the location using a request like the following:
+
+`PUT /sales/61801`
+```json
+{
+    "beginDate": "11/01/2017",
+    "endDate": "2017-12-01",
+    "locationId": null,
+    "name": "foo"
+}
+```
+
+Then the API should respond with:
+```json
+{
+  "errors": ["Multiple sales cannot occur in the same period"],
+  "propertyErrors": {
+    "beginDate": ["beginDate must be ISO-8601 formatted"],
+    "locationId": ["locationId is a required field"],
+    "name": ["name must be at least 10 characters long"]
+  }
+}
+```
 
 ##### Lengthy Updates
 
@@ -156,7 +190,7 @@ Some resources may take additional processing that exceeds the typical timeout p
 
 From an implementation perspective, we may have a `/tasks` resource that allows clients to monitor long-running tasks, including updates. For example, a `PUT` to `/products/123` would return `202 Accepted` along with these headers:
 ```json
-Location: /tasks/789
+Location: 'https://api.hy-vee.com/tasks/789'
 Expires: Wed, 21 Oct 2017 07:28:00 GMT
 ```
 
