@@ -161,17 +161,18 @@ In this response, we can see that `products` contains the array of products. We 
 ### Delete
 
 #### HTTP Methods
-The `DELETE` HTTP verb is used to dipose of resources. A `DELETE` changes the state on the server, either by removing the resource entirely (a hard delete) or by marking the resource as deleted and not exposing it to client (a soft delete). Because the state of the server is altered, `DELETE` is not safe. If it's properly implemented on the server, a `DELETE`
+The `DELETE` HTTP verb is used to dipose of resources. A `DELETE` changes the state on the server, either by removing the resource entirely (a hard delete) or by marking the resource as deleted and not exposing it to the client (a soft delete). Because the state of the server is altered, `DELETE` is not safe. If it's properly implemented on the server, a `DELETE`
 is idempotent. Note that the status code from subsequent `DELETES` might differ -- the first will return with a `204` and additional calls will return with `404`.
 
 #### Status Codes
 There are several status codes involved with deleting a resource:
+
 - [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
 - [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully deleted.
 - [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
 - [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
 - [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist. May be returned if the client queries for the resource after deleting it.
-- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not support deletion -- perhaps it is a collection or a static item.
+- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405): The resource does not support deletion -- perhaps it is a collection or a static item.
 
 #### Individual items
 If we want to delete the product with an `id` of 123, we can simply `DELETE /products/123`. The API will respond with a `204` status code and need not include any headers. If we try to `DELETE /products/123` again, the API will respond with a `404`.
@@ -217,7 +218,6 @@ If we query for the newly added `cartItem`, we can see the full object:
 ```
 
 Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
-
 
 #### Collections
 Typically, entire collections are not deleted at once. If the client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
