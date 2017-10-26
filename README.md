@@ -313,4 +313,4 @@ If we query for the newly added `cartItem`, we can see the full object:
 Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
 
 #### Collections
-Typically, entire collections are not deleted at once. If the client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
+Entire collections are not deleted at once. If the client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
