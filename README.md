@@ -177,6 +177,47 @@ There are several status codes involved with deleting a resource:
 If we want to delete the product with an `id` of 123, we can simply `DELETE /products/123`. The API will respond with a `204` status code and need not include any headers. If we try to `DELETE /products/123` again, the API will respond with a `404`.
 
 ##### Cascading deletes
+Often deleting a resource requires that the associated resource be removed; this is usually the case for one-to-many relationships where the child resource has a reference to the parent. 
+
+For example, we might have a `cart` resource that represents a user's shopping cart, and a `cartItem` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cartItem` resources. 
+
+###### Example
+First we, create our cart.
+
+`POST /cart`
+
+```json
+{
+    "name": "My cart"
+}
+```
+The server responds with a `200` and a `Location` header, indicating that the cart was successfully created with an `id` of `42`. Next we add some Hy-Vee salsa, which has a `productId` of 123, to the cart:
+
+`POST /cart/42/items`
+
+```json
+{
+    "productId": 123
+}
+```
+
+Again, the server responds with a `200` and a `Location` header that tells us that the `cartItem` exists as `/cart/42/cartItems/1`.
+
+If we query for the newly added `cartItem`, we can see the full object:
+
+`GET /cart/42/cartItems/1`
+
+```json
+{
+  "addDate": "2017-10-31",
+  "cartId": 42,
+  "id": 1,
+  "productId": 123
+}
+```
+
+Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
 
 
 #### Collections
+Typically, entire collections are not deleted at once. If the client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
