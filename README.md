@@ -105,9 +105,7 @@ In this response, we can see that `products` contains the array of products. We 
 ### Update
 
 #### HTTP Methods
-The HTTP verb associated with updating a resource is `PUT`. A `PUT` request is not safe, but implemented correctly, it is idempotent. If it's not possible for the update to be idempotent (perhaps the resource increments a counter or last-updated timestamp), then the appropriate method is `POST`.
-
-You can read more about [`PUT` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)
+The HTTP verb associated with updating a resource is `PUT`. A `PUT` request is not safe, but implemented correctly, it is idempotent. You can read more about [`PUT` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)
 
 #### Status Codes
 There are several status codes involved with updating information:
@@ -150,10 +148,6 @@ Note that all the fields that would be present from a `GET /products/123` are th
 ##### Sample Response
 - status code `204`
 - no response body
-- headers:
-```
-Location: 'https://api.hy-vee.com/products/123'
-```
 
 ##### Validation
 Most likely an API will do some validation against a request to enforce any technical restraints or business logic. If the request fails validation, a `400` status code will be returned, along with details about the errors.
@@ -195,6 +189,8 @@ Expires: Wed, 21 Oct 2017 07:28:00 GMT
 ```
 
 The headers indicate to the client that the task to update the resource can be monitored at `/queue/789` and that the task will expire at some date in the future, regardless of success or failure.
+
+However, this approach should be a **last** resort; in almost all cases, persistence to a datastore is fast, so resources that require long-running updates should be rare. If you find yourself implementing or reusing a `task` resource for updates, it's a good idea to step back, profile requests, and see what can be done to speed up the API.
 
 #### Collection
 Entire collections should not be updated with a `PUT`. Instead, individual items should be updated. Should a client attempt to update a collection, the appropriate response code is a `405`. 
