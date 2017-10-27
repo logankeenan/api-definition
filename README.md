@@ -255,7 +255,7 @@ Entire collections should not be updated with a `PUT`. Instead, individual items
 
 #### HTTP Methods
 The `DELETE` HTTP verb is used to dipose of resources. A `DELETE` changes the state on the server, either by removing the resource entirely (a hard delete) or by marking the resource as deleted and not exposing it to the client (a soft delete). Because the state of the server is altered, `DELETE` is not safe. If it's properly implemented on the server, a `DELETE`
-is idempotent. Note that the status code from subsequent `DELETES` might differ -- the first will return with a `204` and additional calls will return with `404`.
+is idempotent. Note that the status code from subsequent `DELETE`s might differ -- the first will return with a `204` and additional calls will return with `404`. You can read more about [`DELETE` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE).
 
 #### Status Codes
 There are several status codes involved with deleting a resource:
@@ -276,7 +276,7 @@ Often deleting a resource requires that the associated resource be removed; this
 For example, we might have a `cart` resource that represents a user's shopping cart, and a `cartItem` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cartItem` resources. 
 
 ###### Example
-First we, create our cart.
+First, we create our cart.
 
 `POST /cart`
 
@@ -312,5 +312,12 @@ If we query for the newly added `cartItem`, we can see the full object:
 
 Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
 
+#### Long-running deletes
+
+Occasionally, it may not be possible to process a `DELETE` request in a timely manner. In this case, the API can simply return a `202` status code along with a  `Location` header indicating where the status of the `DELETE` can be checked. An example of this approach can be found in the [section on long-running updates](#lengthy-updates).
+
+That said, it is preferable to make the API quick enough that a task queue or other mechanism is not necessary. If a hard delete is not performant (perhaps there are cascading deletions in order to satisfy foreign key constraints), then consider doing a soft delete instead.
+
 #### Collections
-Entire collections are not deleted at once. If the client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
+The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
+
