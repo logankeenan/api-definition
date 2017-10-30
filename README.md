@@ -250,3 +250,74 @@ However, this approach should be a **last** resort; in almost all cases, persist
 
 #### Collection
 Entire collections should not be updated with a `PUT`. Instead, individual items should be updated. Should a client attempt to update a collection, the appropriate response code is a `405`. 
+
+### Delete
+
+#### HTTP Methods
+The `DELETE` HTTP verb is used to dipose of resources. A `DELETE` changes the state on the server, either by removing the resource entirely (a hard delete) or by marking the resource as deleted and not exposing it to the client (a soft delete). Because the state of the server is altered, `DELETE` is not safe. If it's properly implemented on the server, a `DELETE`
+is idempotent. Note that the status code from subsequent `DELETE`s might differ -- the first will return with a `204` and additional calls will return with `404`. You can read more about [`DELETE` on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE).
+
+#### Status Codes
+There are several status codes involved with deleting a resource:
+
+- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
+- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully deleted.
+- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
+- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
+- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist. May be returned if the client queries for the resource after deleting it.
+- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405): The resource does not support deletion -- perhaps it is a collection or a static item.
+
+#### Individual items
+If we want to delete the product with an `id` of 123, we can simply `DELETE /products/123`. The API will respond with a `204` status code and need not include any headers. If we try to `DELETE /products/123` again, the API will respond with a `404`.
+
+##### Cascading deletes
+Often deleting a resource requires that the associated resource be removed; this is usually the case for one-to-many relationships where the child resource has a reference to the parent. 
+
+For example, we might have a `cart` resource that represents a user's shopping cart, and a `cartItem` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cartItem` resources. 
+
+###### Example
+First, we create our cart.
+
+`POST /cart`
+
+```json
+{
+    "name": "My cart"
+}
+```
+The server responds with a `200` and a `Location` header, indicating that the cart was successfully created with an `id` of `42`. Next we add some Hy-Vee salsa, which has a `productId` of 123, to the cart:
+
+`POST /cart/42/items`
+
+```json
+{
+    "productId": 123
+}
+```
+
+Again, the server responds with a `200` and a `Location` header that tells us that the `cartItem` exists as `/cart/42/cartItems/1`.
+
+If we query for the newly added `cartItem`, we can see the full object:
+
+`GET /cart/42/cartItems/1`
+
+```json
+{
+  "addDate": "2017-10-31",
+  "cartId": 42,
+  "id": 1,
+  "productId": 123
+}
+```
+
+Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
+
+#### Long-running deletes
+
+Occasionally, it may not be possible to process a `DELETE` request in a timely manner. In this case, the API can simply return a `202` status code along with a  `Location` header indicating where the status of the `DELETE` can be checked. An example of this approach can be found in the [section on long-running updates](#lengthy-updates).
+
+That said, it is preferable to make the API quick enough that a task queue or other mechanism is not necessary. If a hard delete is not performant (perhaps there are cascading deletions in order to satisfy foreign key constraints), then consider doing a soft delete instead.
+
+#### Collections
+The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
+
