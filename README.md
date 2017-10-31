@@ -165,7 +165,7 @@ Link: <https://api.hy-vee.com/products?page=2>; rel="next",
       <https://api.hy-vee.com/products?page=1>; rel="first"
 ```
 
-If they follow the `next` link relation, then the following `Link` header is returned along with the next N products.
+Note that the pages are 1-indexed, so this first request returns page 1. If they follow the `next` link relation, then this next `Link` header is returned along with the next N products.
 
 ```json
 Link: <https://api.hy-vee.com/products?page=3>; rel="next",
@@ -174,7 +174,7 @@ Link: <https://api.hy-vee.com/products?page=3>; rel="next",
       <https://api.hy-vee.com/products?page=2>; rel="prev"
 ```
 
-Optionally, the API can allow the the client to set the page size as a convenience, up to some reasonable maximum. It would be added as another query param, e.g., `/products?page=3&pageSize=50`. For an example of an API with well-developed pagination, check out [GitHub's v3 API](https://developer.github.com/v3/guides/traversing-with-pagination/)
+Optionally, the API can allow the the client to set the page size as a convenience, up to some reasonable maximum. It would be added as another query param, e.g., `/products?page=3&pageSize=50`. For an example of an API with well-developed pagination, please adhere to the standards defined for [GitHub's v3 API](https://developer.github.com/v3/guides/traversing-with-pagination/)
 
 ### Update
 
