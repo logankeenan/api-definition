@@ -112,9 +112,9 @@ When accessing a collection, a client might want to filter by properties on the 
 
 To filter `products` by a category id, the URI might look like this: `/products?categoryId=1`. Multiple query parameters are separated by an ampersand, so to filter products by both category and color, the URI is `/products?categoryId=1&colorId=2`. If we want to filter by multiple values for the same property, we just include the query parameter as many times as necessary (ex: `/products?colorId=1&colorId=2`).
 
-##### Subset
-You may have a requirement that clients be allowed to specify a subset of a collection when no filtering meets their needs.
-For example, clients may want to interact with a small collection of ids, using a URI like this: `/api/resource/1,2,3`. However, this is not very RESTful -- the URI is not resource-based. REST resources should always have a URI for a collection and a URI for accessing a single item in that collection, which is sufficient for the client's needs. Remember, the API should be fast, such that the client could make separate requests for each item, or simply grab the entire list and filter.
+A query parameter can also be used to return a subset of a collection by filtering on many entity ids. This comes in handy when the client knows exactly which resources it needs, but requesting either the entire collection or making many individual requests is not feasible. For example, each item in a user's shopping cart might be represented as a `cartItem`, which is associated to a `product` via a `productId`. If a cart has 50-100 items, making a request for each `product` may not be sensible and the `/product` endpoint could contain thousands or even millions of products. A `GET` request to `/products?productId=1&productId=2` (with however many `productId`s are necessary) allows the client to fetch the details for all `products` in the cart in a single call.
+
+Finally, it's important to remember that the length of a URL is restricted by both the client and the server -- Internet Explorer for instance has a cap of 2,048 characters, while Nginx has a limit of 52,000. While it's unlikely that you'll exceed Nginx's default length restriction, the IE limit is quite small and it's easy enough to hit when filtering by `entityId` or applying many filters simultaneously. In this case, it might be necessary to break up the query parameters and make several requests instead.
 
 ##### Sample Response
 A `GET` to `/products` might return this paginated response:
