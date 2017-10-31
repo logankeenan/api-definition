@@ -104,9 +104,6 @@ Since this was a successful request, the response's status code is `200`.
 #### Collections
 If we want all the members of a collection, we use a URI like this: `/products`. As in the case for a single item, the URI is plural since we are interacting with a collection.
 
-##### Pagination
-If there are many items in the collection, the API should split up the response into pages.
-
 ##### Filtering
 When accessing a collection, a client might want to filter by properties on the resource. The RESTful way to do this is to use a query string made up of individual key-value parameters, which is appended to the URI for the resource collection.
 
@@ -117,7 +114,7 @@ A query parameter can also be used to return a subset of a collection by filteri
 Finally, it's important to remember that the length of a URL is restricted by both the client and the server -- Internet Explorer for instance has a cap of 2,048 characters, while Nginx has a limit of 52,000. While it's unlikely that you'll exceed Nginx's default length restriction, the IE limit is quite small and it's easy enough to hit when filtering by `entityId` or applying many filters simultaneously. In this case, it might be necessary to break up the query parameters and make several requests instead.
 
 ##### Sample Response
-A `GET` to `/products` might return this paginated response:
+A `GET` to `/products` might return this response:
 ```json
 {
     "products": [
@@ -157,6 +154,27 @@ A `GET` to `/products` might return this paginated response:
 }
 ```
 In this response, we can see that `products` contains the array of products. We could've returned just the array, but this approach will allow us to extend the response object in a backwards-compatible way. Because this was a successful request, the response's status code is `200`.
+
+##### Pagination
+If there are many items in the collection, the API should chunk the response into pages and indicate the current page, next and previous pages, as well as the total number of pages. This prevents strain on the server while still allowing the client to eventually request the entire collection. 
+
+When returning a paginated response, the API should use the [`Link`](https://tools.ietf.org/html/rfc5988) header to convey how the client can request additional pages. For example, the `/products` resource could contain millions of items, so it's natural candidate for pagination. When the client makes a `GET` request to `/products`, they get the following headers and a fixed number of products:
+```json
+Link: <https://api.hy-vee.com/products?page=2>; rel="next",
+      <https://api.hy-vee.com/products?page=50>; rel="last",
+      <https://api.hy-vee.com/products?page=1>; rel="first"
+```
+
+If they follow the `next` link relation, then the following `Link` header is returned along with the next N products.
+
+```json
+Link: <https://api.hy-vee.com/products?page=3>; rel="next",
+      <https://api.hy-vee.com/products?page=50>; rel="last"
+      <https://api.hy-vee.com/products?page=1>; rel="first",
+      <https://api.hy-vee.com/products?page=2>; rel="prev"
+```
+
+Optionally, the API can allow the the client to set the page size as a convenience, up to some reasonable maximum. It would be added as another query param, e.g., `/products?page=3&pageSize=50`. For an example of an API with well-developed pagination, check out [GitHub's v3 API](https://developer.github.com/v3/guides/traversing-with-pagination/)
 
 ### Update
 
