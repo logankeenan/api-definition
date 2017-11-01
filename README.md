@@ -345,7 +345,7 @@ The API should disallow the `DELETE` method for collections -- if a client does 
 Resource names should be descriptive nouns.  Resources should refer to a thing, not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without domain knowledge.  Resources should adhere to the following:
  * **Lowercase:**  Different clients treat case sensitivity differently, so it's important to use only once case. 
  * **Pluralization:** This allows resource names to be consistent across all HTTP methods.
- * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it make it easier for a developer to have one standard for urls.
+ * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it would make it easier for a developer to have one standard for urls.
  * **Resource Characters:** Should only start and end with characters a-z including hyphens.
  
 
