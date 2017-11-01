@@ -305,7 +305,7 @@ First, we create our cart.
 ```
 The server responds with a `200` and a `Location` header, indicating that the cart was successfully created with an `id` of `42`. Next we add some Hy-Vee salsa, which has a `productId` of 123, to the cart:
 
-`POST /cart/42/items`
+`POST /carts/42/items`
 
 ```json
 {
@@ -313,11 +313,11 @@ The server responds with a `200` and a `Location` header, indicating that the ca
 }
 ```
 
-Again, the server responds with a `200` and a `Location` header that tells us that a `cart-items` resource exists as `/cart/42/cart-items/1`.
+Again, the server responds with a `200` and a `Location` header that tells us that a `cart-items` resource exists as `/carts/42/cart-items/1`.
 
 If we query for the newly added `cart-items` resource, we can see the full object:
 
-`GET /cart/42/cart-items/1`
+`GET /carts/42/cart-items/1`
 
 ```json
 {
@@ -328,7 +328,7 @@ If we query for the newly added `cart-items` resource, we can see the full objec
 }
 ```
 
-Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cart-items` associated with it.
+Now we decide we don't want to shop at all, so we purge our cart with `DELETE /carts/42`. If we try to do a `GET /carts/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cart-items` associated with it.
 
 #### Long-running deletes
 
