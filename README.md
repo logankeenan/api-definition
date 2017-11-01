@@ -339,4 +339,17 @@ That said, it is preferable to make the API quick enough that a task queue or ot
 #### Collections
 The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
 
-## Urls and Resource Names
+## Resource Names (Urls)
+
+### Naming Basics
+Resource names should be descriptive nouns and only nouns.  Resources should refer to a thing and not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without tribal knowledge.  Resources should adhere to the following:
+ * **Lowercase:**  Different clients treat case sensitivity differently, so its important to use only once case. 
+ * **Pluralization:** This allows resource names to be consistent across all HTTP methods.
+ * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it make it easier for a developer to have one standard for urls.
+ * **Resource Characters:** Should only start and end with characters a-z including hyphens.
+ 
+
+# Examples
+* https://api.hy-vee.com/cart-items/123
+* https://api.hy-vee.com/products/
+
