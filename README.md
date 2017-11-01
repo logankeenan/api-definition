@@ -347,5 +347,4 @@ A client request should include the version in the [Accept](https://developer.mo
   
 #### Examples
 * `Accept: application/vnd.hy-vee.v1+json`
-* `Accept: application/vnd.hy-vee.v2+xml`
-
+* `Accept: application/vnd.hy-vee.v2+json`
