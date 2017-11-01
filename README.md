@@ -351,7 +351,7 @@ Resource names should be descriptive nouns.  Resources should refer to a thing, 
 
 #### Examples
 * https://api.hy-vee.com/cart-items/123
-* https://api.hy-vee.com/products/
+* https://api.hy-vee.com/products
 
 ### Resource Hierarchies
 
