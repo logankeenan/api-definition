@@ -341,7 +341,7 @@ The API should disallow the `DELETE` method for collections -- if a client does 
 
 ### API Versions
 
-As the API changes it's important to communicate to customers of breaking changes in an API. An example of a breaking change would be as small as change a property on an entity to nullable or as large as removing a resource completely. It's very important to communicate changes in a programmatic way to prevent the customers from breaking if the API changes. 
+As the API changes it's important to communicate to consumers of breaking changes to an API. An example of a breaking change would be as small as changing a property on an entity to nullable or as large as removing a resource completely. It's very important to communicate changes in a programmatic way to prevent the consumers from breaking. 
 
 A client request should include the version in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header adhering to the following pattern `application/vnd.hy-vee.[version]+[xml|json]`.
   
