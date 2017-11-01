@@ -349,7 +349,14 @@ Resource names should be descriptive nouns and only nouns.  Resources should ref
  * **Resource Characters:** Should only start and end with characters a-z including hyphens.
  
 
-# Examples
+#### Examples
 * https://api.hy-vee.com/cart-items/123
 * https://api.hy-vee.com/products/
+
+### Resource Hierarchies
+
+Relationships between resources can be expressed through a url. 
+
+#### Example:
+A store which has many different products and each store product can have many different categories can be expressed by `/stores/1234/products/8/categories`. 
 
