@@ -109,7 +109,7 @@ When accessing a collection, a client might want to filter by properties on the 
 
 To filter `products` by a category id, the URI might look like this: `/products?categoryId=1`. Multiple query parameters are separated by an ampersand, so to filter products by both category and color, the URI is `/products?categoryId=1&colorId=2`. If we want to filter by multiple values for the same property, we just include the query parameter as many times as necessary (ex: `/products?colorId=1&colorId=2`).
 
-A query parameter can also be used to return a subset of a collection by filtering on many entity ids. This comes in handy when the client knows exactly which resources it needs, but requesting either the entire collection or making many individual requests is not feasible. For example, each item in a user's shopping cart might be represented as a `cartItem`, which is associated to a `product` via a `productId`. If a cart has 50-100 items, making a request for each `product` may not be sensible and the `/product` endpoint could contain thousands or even millions of products. A `GET` request to `/products?productId=1&productId=2` (with however many `productId`s are necessary) allows the client to fetch the details for all `products` in the cart in a single call.
+A query parameter can also be used to return a subset of a collection by filtering on many entity ids. This comes in handy when the client knows exactly which resources it needs, but requesting either the entire collection or making many individual requests is not feasible. For example, each item in a user's shopping cart might be represented as `cart-items`, which is associated to a `product` via a `productId`. If a cart has 50-100 items, making a request for each `product` may not be sensible and the `/product` endpoint could contain thousands or even millions of products. A `GET` request to `/products?productId=1&productId=2` (with however many `productId`s are necessary) allows the client to fetch the details for all `products` in the cart in a single call.
 
 Finally, it's important to remember that the length of a URL is restricted by both the client and the server -- Internet Explorer for instance has a cap of 2,048 characters, while Nginx has a limit of 52,000. While it's unlikely that you'll exceed Nginx's default length restriction, the IE limit is quite small and it's easy enough to hit when filtering by `entityId` or applying many filters simultaneously. In this case, it might be necessary to break up the query parameters and make several requests instead.
 
@@ -291,7 +291,7 @@ If we want to delete the product with an `id` of 123, we can simply `DELETE /pro
 ##### Cascading deletes
 Often deleting a resource requires that the associated resource be removed; this is usually the case for one-to-many relationships where the child resource has a reference to the parent. 
 
-For example, we might have a `cart` resource that represents a user's shopping cart, and a `cartItem` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cartItem` resources. 
+For example, we might have a `carts` resource that represents a user's shopping cart, and a `cart-items` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cart-items` resources. 
 
 ###### Example
 First, we create our cart.
@@ -305,7 +305,7 @@ First, we create our cart.
 ```
 The server responds with a `200` and a `Location` header, indicating that the cart was successfully created with an `id` of `42`. Next we add some Hy-Vee salsa, which has a `productId` of 123, to the cart:
 
-`POST /cart/42/items`
+`POST /carts/42/items`
 
 ```json
 {
@@ -313,11 +313,11 @@ The server responds with a `200` and a `Location` header, indicating that the ca
 }
 ```
 
-Again, the server responds with a `200` and a `Location` header that tells us that the `cartItem` exists as `/cart/42/cartItems/1`.
+Again, the server responds with a `200` and a `Location` header that tells us that a `cart-items` resource exists as `/carts/42/cart-items/1`.
 
-If we query for the newly added `cartItem`, we can see the full object:
+If we query for the newly added `cart-items` resource, we can see the full object:
 
-`GET /cart/42/cartItems/1`
+`GET /carts/42/cart-items/1`
 
 ```json
 {
@@ -328,7 +328,7 @@ If we query for the newly added `cartItem`, we can see the full object:
 }
 ```
 
-Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
+Now we decide we don't want to shop at all, so we purge our cart with `DELETE /carts/42`. If we try to do a `GET /carts/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cart-items` associated with it.
 
 #### Long-running deletes
 
@@ -339,6 +339,32 @@ That said, it is preferable to make the API quick enough that a task queue or ot
 #### Collections
 The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
 
+## Resource Names (Urls)
+
+### Naming Basics
+Resource names should be descriptive nouns.  Resources should refer to a thing, not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without domain knowledge.  Resources should adhere to the following:
+ * **Lowercase:**  Different clients treat case sensitivity differently, so it's important to use only once case. 
+ * **Pluralization:** This allows resource names to be consistent across all HTTP methods.
+ * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it would make it easier for a developer to have one standard for urls.
+ * **Resource Characters:** Should only start and end with characters a-z including hyphens.
+ 
+
+#### Examples
+* https://api.hy-vee.com/cart-items/123
+* https://api.hy-vee.com/products
+
+### Resource Hierarchies
+
+Relationships between resources can be expressed through a url. 
+
+#### Example:
+A store which has many different products and each store product can have many different categories can be expressed by `/stores/1234/products/8/categories`. 
+
+### Naming Anti-Patterns
+* Query string parameters should not be used to identify the type of content returned. **Bad Example** `/products/?format=JSON`.  The [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header should be used instead.
+* Verbs should not be used.  [Http Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (Request Methods) should be used to specific different types of actions that can be invoke on a resource.
+* The version of the API should not be specific in resource url. The version should be defined in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) Header.
+
 ### Request Payload and Response Body Expectations
 It's important to be consistent in how data structures are sent to and received from the server.  The consistency makes development and consumption of the API easier.  Note, when referring to request payload we are referring to POST and PUT requests. 
   
@@ -346,4 +372,3 @@ It's important to be consistent in how data structures are sent to and received 
 Note: Date is a subset of time and any date can be represented as time.  
 
 All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility for the client to convert the time to however it may be useful, ex: date format or converted to a specific timezone.      
-
