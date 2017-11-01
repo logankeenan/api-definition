@@ -339,3 +339,13 @@ That said, it is preferable to make the API quick enough that a task queue or ot
 #### Collections
 The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
 
+### API Versions
+
+As the API changes it's important to communicate to customers of breaking changes in an API. An example of a breaking change would be as small as change a property on an entity to nullable or as large as removing a resource completely. It's very important to communicate changes in a programmatic way to prevent the customers from breaking if the API changes. 
+
+A client request should include the version in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header adhering to the following pattern `application/vnd.hy-vee.[version]+json`
+  
+#### Examples
+* `Accept: application/vnd.hy-vee.v1+json`
+* `Accept: application/vnd.hy-vee.v2+xml`
+
