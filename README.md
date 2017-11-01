@@ -339,3 +339,11 @@ That said, it is preferable to make the API quick enough that a task queue or ot
 #### Collections
 The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
 
+### Request Payload and Response Body Expectations
+It's important to be consistent in how data structures are sent to and received from the server.  The consistency makes development and consumption of the API easier.  Note, when referring to request payload we are referring to POST and PUT requests. 
+  
+#### Dates and Times
+Note: Date is a subset of time and any date can be represented as time.  
+
+All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility for the client to convert the time to however it may be useful, ex: date format or converted to a specific timezone.      
+
