@@ -360,3 +360,8 @@ Relationships between resources can be expressed through a url.
 #### Example:
 A store which has many different products and each store product can have many different categories can be expressed by `/stores/1234/products/8/categories`. 
 
+### Naming Anti-Patterns
+* Query string parameters should not be used to identify the type of content returned. **Bad Example** `/products/?format=JSON`.  The [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header should be used instead.
+* Verbs should not be used.  [Http Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (Request Methods) should be used to specific different types of actions that can be invoke on a resource.
+* The version of the API should not be specific in resource url. The version should be defined in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) Header.
+* 
