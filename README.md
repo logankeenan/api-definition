@@ -342,7 +342,7 @@ The API should disallow the `DELETE` method for collections -- if a client does 
 ## Resource Names (Urls)
 
 ### Naming Basics
-Resource names should be descriptive nouns and only nouns.  Resources should refer to a thing and not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without tribal knowledge.  Resources should adhere to the following:
+Resource names should be descriptive nouns.  Resources should refer to a thing, not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without domain knowledge.  Resources should adhere to the following:
  * **Lowercase:**  Different clients treat case sensitivity differently, so its important to use only once case. 
  * **Pluralization:** This allows resource names to be consistent across all HTTP methods.
  * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it make it easier for a developer to have one standard for urls.
@@ -364,4 +364,3 @@ A store which has many different products and each store product can have many d
 * Query string parameters should not be used to identify the type of content returned. **Bad Example** `/products/?format=JSON`.  The [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header should be used instead.
 * Verbs should not be used.  [Http Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (Request Methods) should be used to specific different types of actions that can be invoke on a resource.
 * The version of the API should not be specific in resource url. The version should be defined in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) Header.
-* 
