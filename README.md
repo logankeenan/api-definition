@@ -104,20 +104,17 @@ Since this was a successful request, the response's status code is `200`.
 #### Collections
 If we want all the members of a collection, we use a URI like this: `/products`. As in the case for a single item, the URI is plural since we are interacting with a collection.
 
-##### Pagination
-If there are many items in the collection, the API should split up the response into pages.
-
 ##### Filtering
 When accessing a collection, a client might want to filter by properties on the resource. The RESTful way to do this is to use a query string made up of individual key-value parameters, which is appended to the URI for the resource collection.
 
 To filter `products` by a category id, the URI might look like this: `/products?categoryId=1`. Multiple query parameters are separated by an ampersand, so to filter products by both category and color, the URI is `/products?categoryId=1&colorId=2`. If we want to filter by multiple values for the same property, we just include the query parameter as many times as necessary (ex: `/products?colorId=1&colorId=2`).
 
-##### Subset
-You may have a requirement that clients be allowed to specify a subset of a collection when no filtering meets their needs.
-For example, clients may want to interact with a small collection of ids, using a URI like this: `/api/resource/1,2,3`. However, this is not very RESTful -- the URI is not resource-based. REST resources should always have a URI for a collection and a URI for accessing a single item in that collection, which is sufficient for the client's needs. Remember, the API should be fast, such that the client could make separate requests for each item, or simply grab the entire list and filter.
+A query parameter can also be used to return a subset of a collection by filtering on many entity ids. This comes in handy when the client knows exactly which resources it needs, but requesting either the entire collection or making many individual requests is not feasible. For example, each item in a user's shopping cart might be represented as `cart-items`, which is associated to a `product` via a `productId`. If a cart has 50-100 items, making a request for each `product` may not be sensible and the `/product` endpoint could contain thousands or even millions of products. A `GET` request to `/products?productId=1&productId=2` (with however many `productId`s are necessary) allows the client to fetch the details for all `products` in the cart in a single call.
+
+Finally, it's important to remember that the length of a URL is restricted by both the client and the server -- Internet Explorer for instance has a cap of 2,048 characters, while Nginx has a limit of 52,000. While it's unlikely that you'll exceed Nginx's default length restriction, the IE limit is quite small and it's easy enough to hit when filtering by `entityId` or applying many filters simultaneously. In this case, it might be necessary to break up the query parameters and make several requests instead.
 
 ##### Sample Response
-A `GET` to `/products` might return this paginated response:
+A `GET` to `/products` might return this response:
 ```json
 {
     "products": [
@@ -157,6 +154,27 @@ A `GET` to `/products` might return this paginated response:
 }
 ```
 In this response, we can see that `products` contains the array of products. We could've returned just the array, but this approach will allow us to extend the response object in a backwards-compatible way. Because this was a successful request, the response's status code is `200`.
+
+##### Pagination
+If there are many items in the collection, the API should chunk the response into pages and indicate the current page, next and previous pages, as well as the total number of pages. This prevents strain on the server while still allowing the client to eventually request the entire collection. 
+
+When returning a paginated response, the API should use the [`Link`](https://tools.ietf.org/html/rfc5988) header to convey how the client can request additional pages. For example, the `/products` resource could contain millions of items, so it's natural candidate for pagination. When the client makes a `GET` request to `/products`, they get the following headers and a fixed number of products:
+```json
+Link: <https://api.hy-vee.com/products?page=2>; rel="next",
+      <https://api.hy-vee.com/products?page=50>; rel="last",
+      <https://api.hy-vee.com/products?page=1>; rel="first"
+```
+
+Note that the pages are 1-indexed, so this first request returns page 1. If they follow the `next` link relation, then this next `Link` header is returned along with the next N products.
+
+```json
+Link: <https://api.hy-vee.com/products?page=3>; rel="next",
+      <https://api.hy-vee.com/products?page=50>; rel="last"
+      <https://api.hy-vee.com/products?page=1>; rel="first",
+      <https://api.hy-vee.com/products?page=2>; rel="prev"
+```
+
+Optionally, the API can allow the the client to set the page size as a convenience, up to some reasonable maximum. It would be added as another query param, e.g., `/products?page=3&pageSize=50`. For an example of an API with well-developed pagination, please adhere to the standards defined for [GitHub's v3 API](https://developer.github.com/v3/guides/traversing-with-pagination/)
 
 ### Update
 
@@ -273,7 +291,7 @@ If we want to delete the product with an `id` of 123, we can simply `DELETE /pro
 ##### Cascading deletes
 Often deleting a resource requires that the associated resource be removed; this is usually the case for one-to-many relationships where the child resource has a reference to the parent. 
 
-For example, we might have a `cart` resource that represents a user's shopping cart, and a `cartItem` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cartItem` resources. 
+For example, we might have a `carts` resource that represents a user's shopping cart, and a `cart-items` that represents a single product in the cart. Obviously a cart can have none or many items and deleting the cart should remove any `cart-items` resources. 
 
 ###### Example
 First, we create our cart.
@@ -287,7 +305,7 @@ First, we create our cart.
 ```
 The server responds with a `200` and a `Location` header, indicating that the cart was successfully created with an `id` of `42`. Next we add some Hy-Vee salsa, which has a `productId` of 123, to the cart:
 
-`POST /cart/42/items`
+`POST /carts/42/items`
 
 ```json
 {
@@ -295,11 +313,11 @@ The server responds with a `200` and a `Location` header, indicating that the ca
 }
 ```
 
-Again, the server responds with a `200` and a `Location` header that tells us that the `cartItem` exists as `/cart/42/cartItems/1`.
+Again, the server responds with a `200` and a `Location` header that tells us that a `cart-items` resource exists as `/carts/42/cart-items/1`.
 
-If we query for the newly added `cartItem`, we can see the full object:
+If we query for the newly added `cart-items` resource, we can see the full object:
 
-`GET /cart/42/cartItems/1`
+`GET /carts/42/cart-items/1`
 
 ```json
 {
@@ -310,7 +328,7 @@ If we query for the newly added `cartItem`, we can see the full object:
 }
 ```
 
-Now we decide we don't want to shop at all, so we purge our cart with `DELETE /cart/42`. If we try to do a `GET /cart/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cartItem`s associated with it.
+Now we decide we don't want to shop at all, so we purge our cart with `DELETE /carts/42`. If we try to do a `GET /carts/42`, the server responds with `404`. Because the entire cart is gone, so are all the `cart-items` associated with it.
 
 #### Long-running deletes
 
@@ -325,27 +343,91 @@ The API should disallow the `DELETE` method for collections -- if a client does 
 
 HTTP requests include a status code, which indicate whether the request was successful, or why exactly it failed. The leading number indicates the type or class of the message. 
 ### 1xx Informational
- - [100 Continue](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100)
- - [101 Switching protocols](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/101)
+
+#### [100 Continue](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100)
+Returned if a client sends an `Expect: 100-continue` header; the server validates the headers and indicates that the client should proceed with the request. This is typically used when the request payload is large and the client wants affirmation that the request is otherwise valid. The matching client error code is [`417`](#417-expectation-failed).
+
+#### [101 Switching protocols](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/101)
+The server is accepting the client's request to change the method of communication; this can be used to switch from HTTP to websockets, or more rarely, from HTTP to HTTPS.
+
 ### 2xx Success
- - [200 OK](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200)
- - [201 Created](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201)
- - [202 Accepted](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202)
- - [204 No Content](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204)
+
+#### [200 OK](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200)
+The server successfully processed the request. 
+
+#### [201 Created](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201)
+A new resource was successfully created. Typically returned after a `POST`, along with a `Location` header.
+
+#### [202 Accepted](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202)
+This response code indicates that the server has received the request, but has not processed it completely. This code does **not** mean that the request will succeed, it may yet fail. A long running `DELETE`, `PUT`, or `POST` should use this status.
+
+#### [204 No Content](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204)
+The request was successful, but there is no information to put in the request body. For example, a `PUT` request does not return a body since the updated object should match the client sent (otherwise a different status code would be returned).
+
 ### 3xx Redirection
- - [301 Moved Permanently](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301)
- - [302 Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302)
- - [303 See Other](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303)
- - [304 Not Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304)
+
+#### [301 Moved Permanently](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301)
+The resource at this location has been transferred to the URI indicated in the `Location` header.
+
+#### [302 Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302)
+Similar to the previous code, `301`, but the move is temporary. The client should look at the `Location` header and make a new request.
+
+#### [304 Not Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304)
+The resource has not changed and does not need to be transmitted (e.g., multiple `GET`s for the same static file a few minutes apart).
+
 ### 4xx Client errors
- - [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
- - [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401)
- - [402 Payment Required](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402)
- - [403 Forbidden](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403)
- - [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)
- - [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405)
- - [406 Not Acceptable](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/406)
- - [409 Conflict](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409)
+
+#### [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
+Validation on the request payload failed -- either the syntax was wrong (malformed JSON) or the payload is in violation of a business rule.
+
+#### [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401)
+While the name of this code is "Unauthorized", it's used to indicate that the client has not *authenticated*. The client may have access to the resource after authenticating.
+
+#### [403 Forbidden](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403)
+The client is not *authorized* to access the requested resource.
+
+#### [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)
+The resource does not exist.
+
+#### [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405)
+The HTTP verb used is invalid for the resource, i.e. trying to issue a `DELETE` against a collection.
+
+#### [406 Not Acceptable](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/406)
+The server cannot respond with the content type the client requested using the `Accept` header. For example, a client requesting `application/xml` when the server only knows to reply with JSON.
+
+#### [409 Conflict](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409)
+Processing the request would interfere with another request for that same resource. Typically the result of one or more clients issuing a `PUT` request. May also be used when a request is in conflict with itself. 
+
+#### [417 Expectation Failed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409)
+The client sent an `Expect` header but the server could not meet it.
+
 ### 5xx Server errors
- - [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)
- - [501 Not Implemented](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/501)
+
+#### [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)
+Processing the request resulted in an unexpected error.
+
+## Resource Names (Urls)
+
+### Naming Basics
+Resource names should be descriptive nouns.  Resources should refer to a thing, not an action.  APIs are written for consumers, so resource names should be descriptive enough for consumers to easily understand without domain knowledge.  Resources should adhere to the following:
+ * **Lowercase:**  Different clients treat case sensitivity differently, so it's important to use only once case. 
+ * **Pluralization:** This allows resource names to be consistent across all HTTP methods.
+ * **Hyphen Delimited Words:** Easy to read.  Follows lowercase standard. Google [recommends](https://support.google.com/webmasters/answer/76329?hl=en) words be separated by hyphen for SEO purposes. While an api would not necessarily be crawled it would make it easier for a developer to have one standard for urls.
+ * **Resource Characters:** Should only start and end with characters a-z including hyphens.
+ 
+
+#### Examples
+* https://api.hy-vee.com/cart-items/123
+* https://api.hy-vee.com/products
+
+### Resource Hierarchies
+
+Relationships between resources can be expressed through a url. 
+
+#### Example:
+A store which has many different products and each store product can have many different categories can be expressed by `/stores/1234/products/8/categories`. 
+
+### Naming Anti-Patterns
+* Query string parameters should not be used to identify the type of content returned. **Bad Example** `/products/?format=JSON`.  The [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header should be used instead.
+* Verbs should not be used.  [Http Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (Request Methods) should be used to specific different types of actions that can be invoke on a resource.
+* The version of the API should not be specific in resource url. The version should be defined in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) Header.
