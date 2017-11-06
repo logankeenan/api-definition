@@ -369,9 +369,9 @@ A store which has many different products and each store product can have many d
 
 As the API changes it's important to communicate to consumers of breaking changes to an API. An example of a breaking change would be as small as changing a property on an entity to nullable or as large as removing a resource completely. It's very important to communicate changes in a programmatic way to prevent the consumers from breaking. 
 
-A client request should include the version in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header adhering to the following pattern `application/vnd.hy-vee.[version]+[xml|json]`.
+A client request should include the version in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header adhering to the following pattern `application/vnd.hy-vee.[version]+json`.  When a consumer does not specific a version then it will return the default version of the API. The default version is the latest version and subject to change.    
   
 #### Examples
 * `Accept: application/vnd.hy-vee.v1+json`
-* `Accept: application/vnd.hy-vee.v2+xml`
 * `Accept: application/vnd.hy-vee.v2+json`
+* `Accept: application/json`
