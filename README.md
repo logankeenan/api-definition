@@ -12,11 +12,11 @@ The http method associated with create is `POST`.
 The result of a `POST` request is a http response with a header where the Location is the resource identifier of the newly created resource. Example: `Location: '/products/123'`
 
 #### Status Codes
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The request could not be understood by the server due to an invalid syntax.  A bad request could be caused by invalid state, invalid domain validation errors, missing data, etc.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** potentially be created at this resource identifier, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The client is not authorized to create this type of resource.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource cannot be created at this identifier.
-- [409 (Conflict)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409): The resource cannot be created due to a conflict with current state of the server.
+- [400 (Bad request)](#400-bad-request): The request could not be understood by the server due to an invalid syntax.  A bad request could be caused by invalid state, invalid domain validation errors, missing data, etc.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** potentially be created at this resource identifier, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The client is not authorized to create this type of resource.
+- [404 (Not found)](#404-not-found): The resource cannot be created at this identifier.
+- [409 (Conflict)](#409-conflict): The resource cannot be created due to a conflict with current state of the server.
 
 
 #### Single Resource
@@ -70,11 +70,11 @@ The result of a `GET` is some representation of a resource, usually JSON. You ca
 #### Status Codes
 There are several status codes involved with reading information from an API:
 
-- [200 (OK)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200): The resource exists and the client is authorized to view it. The response will include the requested resource.
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid (e.g., the URL was malformed).
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** have access to it, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to view it. If the existence of the resource is sensitive, then the API can return 404 instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist.
+- [200 (OK)](#200-ok): The resource exists and the client is authorized to view it. The response will include the requested resource.
+- [400 (Bad request)](#400-bad-request): The client's request was invalid (e.g., the URL was malformed).
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** exist and the client **may** have access to it, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The resource may exist, but the client is not authorized to view it. If the existence of the resource is sensitive, then the API can return 404 instead.
+- [404 (Not found)](#404-not-found): The resource does not exist.
 
 #### Single Item
 If we want to identify a product with an `id` of 123, the URI might look like this: `/products/123`. We prefix the URI with `products` so that it is clear which resource we're talking about, as an API will likely have many different resources. Also, we like to optimize URIs for human readability (machines don't care), so we use `products` rather than a numeric id or UUID. It's also important that the URI is plural, since we are identifying a single product in a collection of products.
@@ -183,14 +183,14 @@ The HTTP verb associated with updating a resource is `PUT`. A `PUT` request is n
 
 #### Status Codes
 There are several status codes involved with updating information:
-- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and processing may take longer than a client cares to wait.  
-- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully updated and the response has no body.
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated, but **may** be able to update the resource if they login.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource exists, but the client is not authorized to update it. Depending on how sensitive the resource is, it might be appropriate to return a `404` instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist.
-- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405) The resource does not support a PUT (perhaps it is a collection or a static item)
-- [409 (Conflict)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409):
+- [202 (Accepted)](#202-accepted): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and processing may take longer than a client cares to wait.  
+- [204 (No content)](#204-no-content): The resource was successfully updated and the response has no body.
+- [400 (Bad request)](#400-bad-request): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated, but **may** be able to update the resource if they login.
+- [403 (Forbidden)](#403-forbidden): The resource exists, but the client is not authorized to update it. Depending on how sensitive the resource is, it might be appropriate to return a `404` instead.
+- [404 (Not found)](#404-not-found): The resource does not exist.
+- [405 (Method not allowed)](#405-method-not-allowed) The resource does not support a PUT (perhaps it is a collection or a static item)
+- [409 (Conflict)](#409-conflict):
     - multiple clients attempting to update the same resource simultaneously
     - conflicting resource id between the request URI and the payload. 
 
@@ -278,12 +278,12 @@ is idempotent. Note that the status code from subsequent `DELETE`s might differ 
 #### Status Codes
 There are several status codes involved with deleting a resource:
 
-- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
-- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully deleted.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist. May be returned if the client queries for the resource after deleting it.
-- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405): The resource does not support deletion -- perhaps it is a collection or a static item.
+- [202 (Accepted)](#202-accepted): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
+- [204 (No content)](#204-no-content): The resource was successfully deleted.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
+- [404 (Not found)](#404-not-found): The resource does not exist. May be returned if the client queries for the resource after deleting it.
+- [405 (Method not allowed)](#405-method-not-allowed): The resource does not support deletion -- perhaps it is a collection or a static item.
 
 #### Individual items
 If we want to delete the product with an `id` of 123, we can simply `DELETE /products/123`. The API will respond with a `204` status code and need not include any headers. If we try to `DELETE /products/123` again, the API will respond with a `404`.
