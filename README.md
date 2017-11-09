@@ -442,3 +442,11 @@ A client request should include the version in the [Accept](https://developer.mo
 * `Accept: application/vnd.hy-vee.v1+json`
 * `Accept: application/vnd.hy-vee.v2+json`
 * `Accept: application/json`
+
+## Authentication vs Authorization
+
+Simply put, authentication is who you are, while authorization is what you can do. For example, someone logging into a web application with a username and password is *authenticating* -- once they're logged in, what they are *authorized* to do is determined by the server. Often the API determines authorization by through a user's roles or group membership. 
+
+It's important to note that authorization does not always require authentication. For instance, Twitter allows users to view posts and user profiles without logging in; however, logging in (authenticating) does change the authorization scope (e.g., posting tweets or following another account requires authentication).
+
+Trying to access a restricted resource anonymously should result in a [`401`](#401-unauthorized); the appropriate status code for authorization errors is [`403`](#403-forbidden). 
