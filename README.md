@@ -39,6 +39,7 @@
   + [API Versions](#api-versions)
     - [Examples](#examples-1)
 * [Authentication vs Authorization](#authentication-vs-authorization)
+* [Further Reading](#further-reading)
 
 ## Introduction
 
@@ -498,3 +499,9 @@ Simply put, authentication is who you are, while authorization is what you can d
 It's important to note that authorization does not always require authentication. For instance, Twitter allows users to view posts and user profiles without logging in; however, logging in (authenticating) does change the authorization scope (e.g., posting tweets or following another account requires authentication).
 
 Trying to access a restricted resource anonymously should result in a [`401`](#401-unauthorized); the appropriate status code for authorization errors is [`403`](#403-forbidden). 
+
+## Further Reading
+
+- [REST API Tutorial](http://www.restapitutorial.com/)
+- [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
+- [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
