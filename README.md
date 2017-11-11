@@ -1,4 +1,47 @@
 # api-definition
+  * [Introduction](#introduction)
+  * [CRUD](#crud)
+    + [Create](#create)
+      - [HTTP Methods](#http-methods)
+      - [Status Codes](#status-codes)
+      - [Single Resource](#single-resource)
+      - [Example](#example)
+      - [Validations Errors (400 Status Code)](#validations-errors-400-status-code)
+    + [Read](#read)
+      - [HTTP Methods](#http-methods-1)
+      - [Status Codes](#status-codes-1)
+      - [Single Item](#single-item)
+      - [Collections](#collections)
+    + [Update](#update)
+      - [HTTP Methods](#http-methods-2)
+      - [Status Codes](#status-codes-2)
+      - [Single Item](#single-item-1)
+      - [Collection](#collection)
+    + [Delete](#delete)
+      - [HTTP Methods](#http-methods-3)
+      - [Status Codes](#status-codes-3)
+      - [Individual items](#individual-items)
+      - [Long-running deletes](#long-running-deletes)
+      - [Collections](#collections-1)
+  * [HTTP Status Codes](#http-status-codes)
+    + [1xx Informational](#1xx-informational)
+    + [2xx Success](#2xx-success)
+    + [3xx Redirection](#3xx-redirection)
+    + [4xx Client errors](#4xx-client-errors)
+    + [5xx Server errors](#5xx-server-errors)
+  * [Resource Names (Urls)](#resource-names-urls)
+    + [Naming Basics](#naming-basics)
+      - [Examples](#examples)
+    + [Resource Hierarchies](#resource-hierarchies)
+      - [Example:](#example)
+    + [Naming Anti-Patterns](#naming-anti-patterns)
+    + [API Versions](#api-versions)
+      - [Examples](#examples-1)
+  * [Authentication vs Authorization](#authentication-vs-authorization)
+
+## Introduction
+
+APIs r gud. U should use them instead of querying the database directly.
 
 ## CRUD
 
