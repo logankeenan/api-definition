@@ -39,6 +39,7 @@
   + [API Versions](#api-versions)
     - [Examples](#examples-1)
 * [Authentication vs Authorization](#authentication-vs-authorization)
+* [Dates and Times](#dates-and-times)
 * [Further Reading](#further-reading)
 
 ## Introduction
@@ -500,11 +501,11 @@ It's important to note that authorization does not always require authentication
 
 Trying to access a restricted resource anonymously should result in a [`401`](#401-unauthorized); the appropriate status code for authorization errors is [`403`](#403-forbidden). 
 
+## Dates and Times
+Date is a subset of time and any date can be represented as time.  All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility of the consumer to convert the time to however it may be useful.
+
 ## Further Reading
 
 - [REST API Tutorial](http://www.restapitutorial.com/)
 - [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
 - [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm) 
-  
-#### Dates and Times
-Date is a subset of time and any date can be represented as time.  All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility of the consumer to convert the time to however it may be useful.
