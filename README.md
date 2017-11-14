@@ -1,5 +1,54 @@
 # api-definition
 
+* [Introduction](#introduction)
+* [CRUD](#crud)
+  + [Create](#create)
+    - [HTTP Methods](#http-methods)
+    - [Status Codes](#status-codes)
+    - [Single Resource](#single-resource)
+    - [Example](#example)
+    - [Validations Errors (400 Status Code)](#validations-errors-400-status-code)
+  + [Read](#read)
+    - [HTTP Methods](#http-methods-1)
+    - [Status Codes](#status-codes-1)
+    - [Single Item](#single-item)
+    - [Collections](#collections)
+  + [Update](#update)
+    - [HTTP Methods](#http-methods-2)
+    - [Status Codes](#status-codes-2)
+    - [Single Item](#single-item-1)
+    - [Collection](#collection)
+  + [Delete](#delete)
+    - [HTTP Methods](#http-methods-3)
+    - [Status Codes](#status-codes-3)
+    - [Individual items](#individual-items)
+    - [Long-running deletes](#long-running-deletes)
+    - [Collections](#collections-1)
+* [HTTP Status Codes](#http-status-codes)
+  + [1xx Informational](#1xx-informational)
+  + [2xx Success](#2xx-success)
+  + [3xx Redirection](#3xx-redirection)
+  + [4xx Client errors](#4xx-client-errors)
+  + [5xx Server errors](#5xx-server-errors)
+* [Resource Names (Urls)](#resource-names-urls)
+  + [Naming Basics](#naming-basics)
+    - [Examples](#examples)
+  + [Resource Hierarchies](#resource-hierarchies)
+    - [Example:](#example)
+  + [Naming Anti-Patterns](#naming-anti-patterns)
+  + [API Versions](#api-versions)
+    - [Examples](#examples-1)
+* [Authentication vs Authorization](#authentication-vs-authorization)
+* [Further Reading](#further-reading)
+
+## Introduction
+
+An application programming interface or [API](https://en.wikipedia.org/wiki/Application_programming_interface) allows different software to communicate. For example, the publically accessible functions or classes in an NPM or NuGet package comprise an API. 
+
+A web API uses HTTP to communicate and enables software running on different machines to interact; this is the type of API on which this document is focused. Over the years,  a number of different patterns for creating APIs have emerged (RPC, SOAP, REST, GraphQL, etc) and determining what the best practices are have led to countless hours of debate. This document codifies Hy-Vee's API standards so developers can focus on delivering value for customers.
+
+Finally, you may be wondering what benefits an API brings over simply querying a database directly, especially for internal applications. First, an API is an abstraction above the database, so consumers don't need to know or understand the schema. This allows for columns or entire tables to be dropped or added and the change only needs to occur in one place; meanwhile, API consumers continue unaffected. It also means that business rules live in one place, rather than scattered through any application that uses the database. Finally, an API can also be a boon to performance for both consumers and the database; while databases employ a number of strategies to make queries fast, an API can cache results so duplicate requests don't hit the database.
+
 ## CRUD
 
 ### Create
@@ -450,3 +499,9 @@ Simply put, authentication is who you are, while authorization is what you can d
 It's important to note that authorization does not always require authentication. For instance, Twitter allows users to view posts and user profiles without logging in; however, logging in (authenticating) does change the authorization scope (e.g., posting tweets or following another account requires authentication).
 
 Trying to access a restricted resource anonymously should result in a [`401`](#401-unauthorized); the appropriate status code for authorization errors is [`403`](#403-forbidden). 
+
+## Further Reading
+
+- [REST API Tutorial](http://www.restapitutorial.com/)
+- [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
+- [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
