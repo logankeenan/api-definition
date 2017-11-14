@@ -1,5 +1,54 @@
 # api-definition
 
+* [Introduction](#introduction)
+* [CRUD](#crud)
+  + [Create](#create)
+    - [HTTP Methods](#http-methods)
+    - [Status Codes](#status-codes)
+    - [Single Resource](#single-resource)
+    - [Example](#example)
+    - [Validations Errors (400 Status Code)](#validations-errors-400-status-code)
+  + [Read](#read)
+    - [HTTP Methods](#http-methods-1)
+    - [Status Codes](#status-codes-1)
+    - [Single Item](#single-item)
+    - [Collections](#collections)
+  + [Update](#update)
+    - [HTTP Methods](#http-methods-2)
+    - [Status Codes](#status-codes-2)
+    - [Single Item](#single-item-1)
+    - [Collection](#collection)
+  + [Delete](#delete)
+    - [HTTP Methods](#http-methods-3)
+    - [Status Codes](#status-codes-3)
+    - [Individual items](#individual-items)
+    - [Long-running deletes](#long-running-deletes)
+    - [Collections](#collections-1)
+* [HTTP Status Codes](#http-status-codes)
+  + [1xx Informational](#1xx-informational)
+  + [2xx Success](#2xx-success)
+  + [3xx Redirection](#3xx-redirection)
+  + [4xx Client errors](#4xx-client-errors)
+  + [5xx Server errors](#5xx-server-errors)
+* [Resource Names (Urls)](#resource-names-urls)
+  + [Naming Basics](#naming-basics)
+    - [Examples](#examples)
+  + [Resource Hierarchies](#resource-hierarchies)
+    - [Example:](#example)
+  + [Naming Anti-Patterns](#naming-anti-patterns)
+  + [API Versions](#api-versions)
+    - [Examples](#examples-1)
+* [Authentication vs Authorization](#authentication-vs-authorization)
+* [Further Reading](#further-reading)
+
+## Introduction
+
+An application programming interface or [API](https://en.wikipedia.org/wiki/Application_programming_interface) allows different software to communicate. For example, the publically accessible functions or classes in an NPM or NuGet package comprise an API. 
+
+A web API uses HTTP to communicate and enables software running on different machines to interact; this is the type of API on which this document is focused. Over the years,  a number of different patterns for creating APIs have emerged (RPC, SOAP, REST, GraphQL, etc) and determining what the best practices are have led to countless hours of debate. This document codifies Hy-Vee's API standards so developers can focus on delivering value for customers.
+
+Finally, you may be wondering what benefits an API brings over simply querying a database directly, especially for internal applications. First, an API is an abstraction above the database, so consumers don't need to know or understand the schema. This allows for columns or entire tables to be dropped or added and the change only needs to occur in one place; meanwhile, API consumers continue unaffected. It also means that business rules live in one place, rather than scattered through any application that uses the database. Finally, an API can also be a boon to performance for both consumers and the database; while databases employ a number of strategies to make queries fast, an API can cache results so duplicate requests don't hit the database.
+
 ## CRUD
 
 ### Create
@@ -12,11 +61,11 @@ The http method associated with create is `POST`.
 The result of a `POST` request is a http response with a header where the Location is the resource identifier of the newly created resource. Example: `Location: '/products/123'`
 
 #### Status Codes
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The request could not be understood by the server due to an invalid syntax.  A bad request could be caused by invalid state, invalid domain validation errors, missing data, etc.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** potentially be created at this resource identifier, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The client is not authorized to create this type of resource.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource cannot be created at this identifier.
-- [409 (Conflict)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409): The resource cannot be created due to a conflict with current state of the server.
+- [400 (Bad request)](#400-bad-request): The request could not be understood by the server due to an invalid syntax.  A bad request could be caused by invalid state, invalid domain validation errors, missing data, etc.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** potentially be created at this resource identifier, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The client is not authorized to create this type of resource.
+- [404 (Not found)](#404-not-found): The resource cannot be created at this identifier.
+- [409 (Conflict)](#409-conflict): The resource cannot be created due to a conflict with current state of the server.
 
 
 #### Single Resource
@@ -70,11 +119,11 @@ The result of a `GET` is some representation of a resource, usually JSON. You ca
 #### Status Codes
 There are several status codes involved with reading information from an API:
 
-- [200 (OK)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200): The resource exists and the client is authorized to view it. The response will include the requested resource.
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid (e.g., the URL was malformed).
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** have access to it, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to view it. If the existence of the resource is sensitive, then the API can return 404 instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist.
+- [200 (OK)](#200-ok): The resource exists and the client is authorized to view it. The response will include the requested resource.
+- [400 (Bad request)](#400-bad-request): The client's request was invalid (e.g., the URL was malformed).
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** exist and the client **may** have access to it, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The resource may exist, but the client is not authorized to view it. If the existence of the resource is sensitive, then the API can return 404 instead.
+- [404 (Not found)](#404-not-found): The resource does not exist.
 
 #### Single Item
 If we want to identify a product with an `id` of 123, the URI might look like this: `/products/123`. We prefix the URI with `products` so that it is clear which resource we're talking about, as an API will likely have many different resources. Also, we like to optimize URIs for human readability (machines don't care), so we use `products` rather than a numeric id or UUID. It's also important that the URI is plural, since we are identifying a single product in a collection of products.
@@ -183,14 +232,14 @@ The HTTP verb associated with updating a resource is `PUT`. A `PUT` request is n
 
 #### Status Codes
 There are several status codes involved with updating information:
-- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and processing may take longer than a client cares to wait.  
-- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully updated and the response has no body.
-- [400 (Bad request)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated, but **may** be able to update the resource if they login.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource exists, but the client is not authorized to update it. Depending on how sensitive the resource is, it might be appropriate to return a `404` instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist.
-- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405) The resource does not support a PUT (perhaps it is a collection or a static item)
-- [409 (Conflict)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409):
+- [202 (Accepted)](#202-accepted): The request to update the resource has been receieved, but the update itself has not yet occurred. Usually returned when the update is expensive and processing may take longer than a client cares to wait.  
+- [204 (No content)](#204-no-content): The resource was successfully updated and the response has no body.
+- [400 (Bad request)](#400-bad-request): The client's request was invalid. The request may be malformed (e.g., invalid JSON) or some validation on the payload may have failed.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated, but **may** be able to update the resource if they login.
+- [403 (Forbidden)](#403-forbidden): The resource exists, but the client is not authorized to update it. Depending on how sensitive the resource is, it might be appropriate to return a `404` instead.
+- [404 (Not found)](#404-not-found): The resource does not exist.
+- [405 (Method not allowed)](#405-method-not-allowed) The resource does not support a PUT (perhaps it is a collection or a static item)
+- [409 (Conflict)](#409-conflict):
     - multiple clients attempting to update the same resource simultaneously
     - conflicting resource id between the request URI and the payload. 
 
@@ -278,12 +327,12 @@ is idempotent. Note that the status code from subsequent `DELETE`s might differ 
 #### Status Codes
 There are several status codes involved with deleting a resource:
 
-- [202 (Accepted)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
-- [204 (No content)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204): The resource was successfully deleted.
-- [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
-- [403 (Forbidden)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
-- [404 (Not found)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404): The resource does not exist. May be returned if the client queries for the resource after deleting it.
-- [405 (Method not allowed)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405): The resource does not support deletion -- perhaps it is a collection or a static item.
+- [202 (Accepted)](#202-accepted): The request to delete the resource was accepted, but has not yet been processed. The deletion may fail or be denied later. 
+- [204 (No content)](#204-no-content): The resource was successfully deleted.
+- [401 (Unauthorized)](#401-unauthorized): The client is not authenticated -- the resource **may** exist and the client **may** be able to delete it, but they must authenticate first.
+- [403 (Forbidden)](#403-forbidden): The resource may exist, but the client is not authorized to delete it. If the existence of the resource is sensitive, then the API can return 404 instead.
+- [404 (Not found)](#404-not-found): The resource does not exist. May be returned if the client queries for the resource after deleting it.
+- [405 (Method not allowed)](#405-method-not-allowed): The resource does not support deletion -- perhaps it is a collection or a static item.
 
 #### Individual items
 If we want to delete the product with an `id` of 123, we can simply `DELETE /products/123`. The API will respond with a `204` status code and need not include any headers. If we try to `DELETE /products/123` again, the API will respond with a `404`.
@@ -339,6 +388,73 @@ That said, it is preferable to make the API quick enough that a task queue or ot
 #### Collections
 The API should disallow the `DELETE` method for collections -- if a client does wish to remove every item in the collection, they can make multiple `DELETE` requests. The appropriate status code for a `DELETE` issued against a collection is `405`.
 
+## HTTP Status Codes
+
+HTTP requests include a status code, which indicate whether the request was successful, or why exactly it failed. The leading number indicates the type or class of the message. 
+### 1xx Informational
+
+#### [100 Continue](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100)
+Returned if a client sends an `Expect: 100-continue` header; the server validates the headers and indicates that the client should proceed with the request. This is typically used when the request payload is large and the client wants affirmation that the request is otherwise valid. The matching client error code is [`417`](#417-expectation-failed).
+
+#### [101 Switching protocols](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/101)
+The server is accepting the client's request to change the method of communication; this can be used to switch from HTTP to websockets, or more rarely, from HTTP to HTTPS.
+
+### 2xx Success
+
+#### [200 OK](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200)
+The server successfully processed the request. 
+
+#### [201 Created](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201)
+A new resource was successfully created. Typically returned after a `POST`, along with a `Location` header.
+
+#### [202 Accepted](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202)
+This response code indicates that the server has received the request, but has not processed it completely. This code does **not** mean that the request will succeed, it may yet fail. A long running `DELETE`, `PUT`, or `POST` should use this status.
+
+#### [204 No Content](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204)
+The request was successful, but there is no information to put in the request body. For example, a `PUT` request does not return a body since the updated object should match the client sent (otherwise a different status code would be returned).
+
+### 3xx Redirection
+
+#### [301 Moved Permanently](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301)
+The resource at this location has been transferred to the URI indicated in the `Location` header.
+
+#### [302 Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302)
+Similar to the previous code, `301`, but the move is temporary. The client should look at the `Location` header and make a new request.
+
+#### [304 Not Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304)
+The resource has not changed and does not need to be transmitted (e.g., multiple `GET`s for the same static file a few minutes apart).
+
+### 4xx Client errors
+
+#### [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
+Validation on the request payload failed -- either the syntax was wrong (malformed JSON) or the payload is in violation of a business rule.
+
+#### [401 Unauthorized](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401)
+While the name of this code is "Unauthorized", it's used to indicate that the client has not *authenticated*. The client may have access to the resource after authenticating.
+
+#### [403 Forbidden](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403)
+The client is not *authorized* to access the requested resource.
+
+#### [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)
+The resource does not exist.
+
+#### [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405)
+The HTTP verb used is invalid for the resource, i.e. trying to issue a `DELETE` against a collection.
+
+#### [406 Not Acceptable](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/406)
+The server cannot respond with the content type the client requested using the `Accept` header. For example, a client requesting `application/xml` when the server only knows to reply with JSON.
+
+#### [409 Conflict](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409)
+Processing the request would interfere with another request for that same resource. Typically the result of one or more clients issuing a `PUT` request. May also be used when a request is in conflict with itself. 
+
+#### [417 Expectation Failed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409)
+The client sent an `Expect` header but the server could not meet it.
+
+### 5xx Server errors
+
+#### [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)
+Processing the request resulted in an unexpected error.
+
 ## Resource Names (Urls)
 
 ### Naming Basics
@@ -365,10 +481,35 @@ A store which has many different products and each store product can have many d
 * Verbs should not be used.  [Http Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (Request Methods) should be used to specific different types of actions that can be invoke on a resource.
 * The version of the API should not be specific in resource url. The version should be defined in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) Header.
 
+### API Versions
+
+As the API changes it's important to communicate to consumers of breaking changes to an API. An example of a breaking change would be as small as changing a property on an entity to nullable or as large as removing a resource completely. It's very important to communicate changes in a programmatic way to prevent the consumers from breaking. 
+
+A client request should include the version in the [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header adhering to the following pattern `application/vnd.hy-vee.[version]+json`.  When a consumer does not specific a version then it will return the default version of the API. The default version is the latest version and subject to change.    
+  
+#### Examples
+* `Accept: application/vnd.hy-vee.v1+json`
+* `Accept: application/vnd.hy-vee.v2+json`
+* `Accept: application/json`
+
+## Authentication vs Authorization
+
+Simply put, authentication is who you are, while authorization is what you can do. For example, someone logging into a web application with a username and password is *authenticating* -- once they're logged in, what they are *authorized* to do is determined by the server. Often the API determines authorization by through a user's roles or group membership. 
+
+It's important to note that authorization does not always require authentication. For instance, Twitter allows users to view posts and user profiles without logging in; however, logging in (authenticating) does change the authorization scope (e.g., posting tweets or following another account requires authentication).
+
+Trying to access a restricted resource anonymously should result in a [`401`](#401-unauthorized); the appropriate status code for authorization errors is [`403`](#403-forbidden). 
+
+## Further Reading
+
+- [REST API Tutorial](http://www.restapitutorial.com/)
+- [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
+- [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
+
 ### Request Payload and Response Body Expectations
 It's important to be consistent in how data structures are sent to and received from the server.  The consistency makes development and consumption of the API easier.  Note, when referring to request payload we are referring to POST and PUT requests. 
   
 #### Dates and Times
 Note: Date is a subset of time and any date can be represented as time.  
 
-All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility for the client to convert the time to however it may be useful, ex: date format or converted to a specific timezone.      
+All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility for the client to convert the time to however it may be useful, ex: date format or converted to a specific timezone.
