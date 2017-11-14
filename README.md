@@ -504,12 +504,7 @@ Trying to access a restricted resource anonymously should result in a [`401`](#4
 
 - [REST API Tutorial](http://www.restapitutorial.com/)
 - [Richardson Maturity Model](https://martinfowler.com/articles/richardsonMaturityModel.html)
-- [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
-
-### Request Payload and Response Body Expectations
-It's important to be consistent in how data structures are sent to and received from the server.  The consistency makes development and consumption of the API easier.  Note, when referring to request payload we are referring to POST and PUT requests. 
+- [Roy Fielding's original thesis on REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm) 
   
 #### Dates and Times
-Note: Date is a subset of time and any date can be represented as time.  
-
-All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility for the client to convert the time to however it may be useful, ex: date format or converted to a specific timezone.
+Date is a subset of time and any date can be represented as time.  All time should follow the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard and be specified as [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) or an offset from UTC.  All time should sent or received from the server in UTC because it is important for time to be consistent for clients and servers located anywhere in the world. It is the responsibility of the consumer to convert the time to however it may be useful.
